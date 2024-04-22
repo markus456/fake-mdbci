@@ -13,3 +13,9 @@ Fakes MDBCI with Vagrant and a few scripts.
 - Run `cd ~/vms/ && ./create_network_file.py`
 
 - Run `echo 'GALERA_BACKEND,MAXSCALE,REPL_BACKEND,SECOND_MAXSCALE' > ~/vms/develop_configured_labels`
+
+- Export the config name with `export mdbci_config_name=develop`
+
+- Build tests
+
+- Run a test
