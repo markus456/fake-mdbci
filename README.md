@@ -2,6 +2,10 @@
 
 Fakes MDBCI with Vagrant and a few scripts.
 
+## Requirements
+
+You need qemu, libvirt, Vagrant and the vagrant-libvirt Vagrant plugin for this to work.
+
 ## Usage
 
 - Copy `Vagrantfile` to `~/vms/develop/`.
