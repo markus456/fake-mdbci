@@ -12,7 +12,7 @@ You need qemu, libvirt, Vagrant and the vagrant-libvirt Vagrant plugin for this 
 
 - Copy `create_network_file.py` to `~/vms/`.
 
-- Run `cd ~/vms/develop/ && vagrant up --no-parallel`
+- Run `cd ~/vms/develop/ && vagrant up --provider=libvirt`
 
 - Run `cd ~/vms/ && ./create_network_file.py`
 
