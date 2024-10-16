@@ -1,7 +1,7 @@
 # Provisioning script for all nodes
 $script = <<-SCRIPT
 sudo dnf -y install curl
-curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | sudo bash
+curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | sudo bash -s -- --mariadb-server-version=10.11
 sudo dnf -y install MariaDB-server
 sudo systemctl disable firewalld
 sudo systemctl stop firewalld
