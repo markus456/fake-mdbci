@@ -24,6 +24,10 @@ You need qemu, libvirt, Vagrant and the vagrant-libvirt Vagrant plugin for this 
 
 - Run a test
 
+**Note:** If you do not have the maxscale_001 VM or the Galera VMs up, do not
+  add these into `~/vms/develop_configured_labels`. Otherwise, the test system
+  will try to SSH there and it'll fail if they're down.
+
 ## Copying Sources From a Local Copy
 
 First, generate the SSH configuration file.
