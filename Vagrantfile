@@ -15,7 +15,9 @@ Vagrant.configure(2) do |config|
     qemu.driver = 'kvm'
     qemu.cpu_mode = 'host-passthrough'
     qemu.cpus = 2
-    qemu.memory = 768
+    qemu.memory = 1024
+    # Uncomment this if you have a slow disk
+    # qemu.disk_driver :cache => 'unsafe'
   end
 
   config.vm.provision "shell", inline: $script
