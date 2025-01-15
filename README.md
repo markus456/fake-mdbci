@@ -44,7 +44,7 @@ To sync the sources from your local `~/MaxScale/` directory to the first
 VMs `~/MaxScale` directory, run the following command.
 
 ```
-rsync --delete -a --progress -e "ssh -F $HOME/vms/develop_ssh_config" ~/MaxScale/ vagrant@$maxscale_000:~/MaxScale/
+rsync --delete -a --progress -e "ssh -F $HOME/vms/develop_ssh_config" ~/MaxScale/ vagrant@maxscale_000:~/MaxScale/
 ```
 
 Here's a bash function that can be called to rsync the source from the
