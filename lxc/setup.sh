@@ -59,8 +59,9 @@ $lxc_cmd exec ${setup}-maxscale-000 bash <<EOF
 mkdir -p /build
 cd /build
 
-# Workarounds for some Rocky 8 problems. The testing also requires that Java is installed on the MaxScale VM.
-dnf -y install libasan libubsan java-latest-openjdk
+# Workarounds for some Rocky 8 problems. The testing also requires that Java and
+# the kerberos tools are installed on the MaxScale VM.
+dnf -y install libasan libubsan java-latest-openjdk krb5-workstation
 source /opt/rh/gcc-toolset-11/enable
 
 git config --global --add safe.directory /MaxScale
