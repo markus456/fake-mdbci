@@ -1,6 +1,13 @@
 #!/bin/bash
 cd $(dirname $(realpath $0)) || exit 1
 
+if command -v incus > /dev/null
+then
+    lxc_cmd=incus
+else
+    lxc_cmd=lxc
+fi
+
 src=$1
 shift
 dst=$1
@@ -15,8 +22,8 @@ while [ -n "$dst" ]
 do
     for name in maxscale-00{0,1} node-00{0..3} galera-00{0..3}
     do
-        incus copy $src-$name $dst-$name
-        incus start $dst-$name
+        $lxc_cmd copy $src-$name $dst-$name
+        $lxc_cmd start $dst-$name
     done
 
     setup=$dst
@@ -25,7 +32,7 @@ do
 
     for name in maxscale-00{0,1} node-00{0..3} galera-00{0..3}
     do
-        line=$(incus ls -f csv $prefix$name)
+        line=$($lxc_cmd ls -f csv $prefix$name)
         ip=$(echo $line|cut -f 3 -d ,|sed 's/ .*//')
 
         for ((i=0;i<30;i++))
@@ -37,7 +44,7 @@ do
 
             echo "Network is not yet up: $line"
             sleep 1
-            line=$(incus ls -f csv $prefix$name)
+            line=$($lxc_cmd ls -f csv $prefix$name)
             ip=$(echo $line|cut -f 3 -d ,|sed 's/ .*//')
         done
 

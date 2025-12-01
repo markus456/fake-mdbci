@@ -7,6 +7,13 @@ then
     exit 1
 fi
 
+if command -v incus > /dev/null
+then
+    lxc_cmd=incus
+else
+    lxc_cmd=lxc
+fi
+
 setup=$1
 
 # Create a SSH private key if needed
@@ -15,14 +22,14 @@ then
     ssh-keygen -q -f ssh_key -N ""
 fi
 
-incus launch images:rockylinux/8 ${setup}-maxscale-000
+$lxc_cmd launch images:rockylinux/8 ${setup}-maxscale-000
 
 echo "Waiting for network to start up..."
 sleep 3
 
 # Setup the containers for testing. The tests kind of assume a vagrant user.
 
-incus exec ${setup}-maxscale-000 bash <<EOF
+$lxc_cmd exec ${setup}-maxscale-000 bash <<EOF
 dnf -y install openssh-server iptables rsync lsof net-tools
 systemctl enable sshd
 systemctl start sshd
@@ -41,12 +48,12 @@ sed -i 's/^%wheel.*/%wheel ALL=(ALL)       NOPASSWD: ALL/' /etc/sudoers
 EOF
 
 # Copy the base container, we'll install MariaDB onto it later
-incus copy ${setup}-maxscale-000 ${setup}-node-000
-incus start ${setup}-node-000
+$lxc_cmd copy ${setup}-maxscale-000 ${setup}-node-000
+$lxc_cmd start ${setup}-node-000
 
 # Build MaxScale, assumes that the source is at ~/MaxScale
-incus file push -r ~/MaxScale/ ${setup}-maxscale-000/
-incus exec ${setup}-maxscale-000 bash <<EOF
+$lxc_cmd file push -r ~/MaxScale/ ${setup}-maxscale-000/
+$lxc_cmd exec ${setup}-maxscale-000 bash <<EOF
 /MaxScale/BUILD/install_build_deps.sh
 
 mkdir -p /build
@@ -64,25 +71,25 @@ dnf -y install maxscale*.rpm
 EOF
 
 # Copy it as the maxscale-001 container
-incus copy ${setup}-maxscale-000 ${setup}-maxscale-001
-incus start ${setup}-maxscale-001
+$lxc_cmd copy ${setup}-maxscale-000 ${setup}-maxscale-001
+$lxc_cmd start ${setup}-maxscale-001
 
-incus exec ${setup}-node-000 bash <<EOF
+$lxc_cmd exec ${setup}-node-000 bash <<EOF
 curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | sudo bash -s -- --mariadb-server-version=10.11
 sudo dnf -y install MariaDB-server
 EOF
 
 for name in node-00{1..3} galera-00{0..3}
 do
-    incus copy ${setup}-node-000 ${setup}-$name
-    incus start ${setup}-$name
+    $lxc_cmd copy ${setup}-node-000 ${setup}-$name
+    $lxc_cmd start ${setup}-$name
 done
 
 echo "[__anonymous__]" > ${setup}_network_config
 
 for name in maxscale-00{0,1} node-00{0..3} galera-00{0..3}
 do
-    line=$(incus ls -f csv ${setup}-$name)
+    line=$($lxc_cmd ls -f csv ${setup}-$name)
     ip=$(echo $line|cut -f 3 -d ,|sed 's/ .*//')
 
     for ((i=0;i<30;i++))
@@ -94,7 +101,7 @@ do
 
         echo "Network is not yet up: $line"
         sleep 1
-        line=$(incus ls -f csv ${setup}-$name)
+        line=$($lxc_cmd ls -f csv ${setup}-$name)
         ip=$(echo $line|cut -f 3 -d ,|sed 's/ .*//')
     done
 
