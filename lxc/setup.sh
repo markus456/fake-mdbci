@@ -59,7 +59,7 @@ $lxc_cmd copy ${setup}-maxscale-000 ${setup}-node-000
 $lxc_cmd start ${setup}-node-000
 
 # Build MaxScale, assumes that the source is at ~/MaxScale
-$lxc_cmd file push -r ~/MaxScale/ ${setup}-maxscale-000/
+$lxc_cmd file push -q -r ~/MaxScale/ ${setup}-maxscale-000/
 $lxc_cmd exec ${setup}-maxscale-000 bash <<EOF
 /MaxScale/BUILD/install_build_deps.sh
 
