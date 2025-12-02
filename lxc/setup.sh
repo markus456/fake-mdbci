@@ -17,7 +17,7 @@ then
     ssh-keygen -q -f ssh_key -N ""
 fi
 
-$lxc_cmd launch images:rockylinux/8 ${setup}-maxscale-000
+$lxc_cmd launch images:rockylinux/8 ${setup}-maxscale-000 || exit 1
 
 wait_for_network ${setup}-maxscale-000
 
@@ -42,15 +42,15 @@ sed -i 's/^%wheel.*/%wheel ALL=(ALL)       NOPASSWD: ALL/' /etc/sudoers
 EOF
 
 # Copy the base container, we'll install MariaDB onto it later
-$lxc_cmd copy ${setup}-maxscale-000 ${setup}-node-000
-$lxc_cmd start ${setup}-node-000
+$lxc_cmd copy ${setup}-maxscale-000 ${setup}-node-000 || exit 1
+$lxc_cmd start ${setup}-node-000 || exit 1
 
 # Build MaxScale, assumes that the source is at ~/MaxScale
 $scriptdir/build_maxscale.sh "${setup}-maxscale-000"
 
 # Copy it as the maxscale-001 container
-$lxc_cmd copy ${setup}-maxscale-000 ${setup}-maxscale-001
-$lxc_cmd start ${setup}-maxscale-001
+$lxc_cmd copy ${setup}-maxscale-000 ${setup}-maxscale-001 || exit 1
+$lxc_cmd start ${setup}-maxscale-001 || exit 1
 
 $lxc_cmd exec ${setup}-node-000 bash <<EOF
 curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | sudo bash -s -- --mariadb-server-version=10.11
@@ -66,8 +66,8 @@ EOF
 
 for name in node-00{1..3} galera-00{0..3}
 do
-    $lxc_cmd copy ${setup}-node-000 ${setup}-$name
-    $lxc_cmd start ${setup}-$name
+    $lxc_cmd copy ${setup}-node-000 ${setup}-$name || exit 1
+    $lxc_cmd start ${setup}-$name || exit 1
 done
 
 $scriptdir/create_configurations.sh $setup
