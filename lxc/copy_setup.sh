@@ -1,5 +1,7 @@
 #!/bin/bash
 
+. $(dirname $(realpath $0))/utils.sh
+
 if ! [ -d "$HOME/vms/" ]
 then
     mkdir -p "$HOME/vms/" || exit 1
@@ -38,22 +40,9 @@ do
 
     for name in maxscale-00{0,1} node-00{0..3} galera-00{0..3}
     do
+        wait_for_network $prefix$name
         line=$($lxc_cmd ls -f csv $prefix$name)
         ip=$(echo $line|cut -f 3 -d ,|sed 's/ .*//')
-
-        for ((i=0;i<30;i++))
-        do
-            if [ -n "$ip" ]
-            then
-                break
-            fi
-
-            echo "Network is not yet up: $line"
-            sleep 1
-            line=$($lxc_cmd ls -f csv $prefix$name)
-            ip=$(echo $line|cut -f 3 -d ,|sed 's/ .*//')
-        done
-
         confname=$(echo $name|tr '-' '_')
         cat <<EOF >> ${setup}_network_config
 ${confname}_whoami=vagrant
