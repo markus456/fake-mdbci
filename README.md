@@ -78,9 +78,7 @@ The `incus/` directory contains scripts that set up a LXC based testing setup us
 
 ### Simple Usage
 
-- Copy the contents of the `incus/` directory into `~/vms/`.
-
-- Run `cd ~/vms/ && ./setup.sh develop`.
+- Run `./lxc/setup.sh develop`. This creates the test environment named `develop`.
 
 - Export the config name with `export mdbci_config_name=develop`
 
@@ -90,16 +88,14 @@ The `incus/` directory contains scripts that set up a LXC based testing setup us
 
 ### Usage for Parallel Testing
 
-- Copy the contents of the `incus/` directory into `~/vms/`.
+- Run `./lxc/setup.sh vm1` to bring up the first test environment named `vm1`.
 
-- Run `cd ~/vms/ && ./setup.sh vm1` to bring up the first setup.
+- Run `./lxc/copy_setup.sh vm1 vm2 vm3 vm4` to copy `vm1` into three other setups.
 
-- Run `./copy_setup.sh vm1 vm2 vm3 vm4` to copy `vm1` into three other setups.
-
-- Run `./create_resource.sh vm1 vm2 vm3 vm4` to create the CTest resource spec file.
+- Run `./lxc/create_resource.sh vm1 vm2 vm3 vm4` to create the CTest resource spec file.
 
 - Build tests
 
-- Run tests with `ctest -j --resource-spec-file ~/vms/resource-spec.json`
+- Run tests with `ctest -j 0 --resource-spec-file ~/vms/resource-spec.json --output-on-failure`
 
 The parallel testing may consume large amounts of memory due to MariaDB using up a bunch of memory on the system.

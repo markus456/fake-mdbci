@@ -1,6 +1,7 @@
 #!/bin/bash
 
-. $(dirname $(realpath $0))/utils.sh
+scriptdir=$(dirname $(realpath $0))
+. $scriptdir/utils.sh
 
 if ! [ -d "$HOME/vms/" ]
 then
@@ -59,24 +60,7 @@ $lxc_cmd copy ${setup}-maxscale-000 ${setup}-node-000
 $lxc_cmd start ${setup}-node-000
 
 # Build MaxScale, assumes that the source is at ~/MaxScale
-$lxc_cmd file push -q -r ~/MaxScale/ ${setup}-maxscale-000/
-$lxc_cmd exec ${setup}-maxscale-000 bash <<EOF
-/MaxScale/BUILD/install_build_deps.sh
-
-mkdir -p /build
-cd /build
-
-# Workarounds for some Rocky 8 problems. The testing also requires that Java and
-# the kerberos tools are installed on the MaxScale VM.
-dnf -y install libasan libubsan java-latest-openjdk krb5-workstation
-source /opt/rh/gcc-toolset-11/enable
-
-git config --global --add safe.directory /MaxScale
-cmake /MaxScale/ -DPACKAGE=Y -DCMAKE_BUILD_TYPE=Debug -DWITH_ASAN=Y -DWITH_UBSAN=Y
-
-make -j \$(grep -c processor /proc/cpuinfo) package
-dnf -y install maxscale*.rpm
-EOF
+$scriptdir/build_maxscale.sh "${setup}-maxscale-000"
 
 # Copy it as the maxscale-001 container
 $lxc_cmd copy ${setup}-maxscale-000 ${setup}-maxscale-001
@@ -85,6 +69,13 @@ $lxc_cmd start ${setup}-maxscale-001
 $lxc_cmd exec ${setup}-node-000 bash <<EOF
 curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | sudo bash -s -- --mariadb-server-version=10.11
 sudo dnf -y install MariaDB-server
+
+# Configure a smaller buffer pool, we don't need a big one for the tests.
+# The 20MiB buffer pool should be small enough that the memory usage stays
+# reasonable but large enough that things don't grind to a halt.
+echo '[mariadb]' > /etc/my.cnf.d/innodb.cnf
+echo 'innodb_buffer_pool_size=20971520' >> /etc/my.cnf.d/innodb.cnf
+chmod a+rw /etc/my.cnf.d/innodb.cnf
 EOF
 
 for name in node-00{1..3} galera-00{0..3}
