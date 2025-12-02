@@ -1,5 +1,11 @@
 #!/bin/bash
-cd $(dirname $(realpath $0)) || exit 1
+
+if ! [ -d "$HOME/vms/" ]
+then
+    mkdir -p "$HOME/vms/" || exit 1
+fi
+
+cd "$HOME/vms/" || exit 1
 
 if [ -z "$1" ]
 then
