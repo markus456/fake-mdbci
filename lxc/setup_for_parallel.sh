@@ -11,4 +11,4 @@ fi
 scriptdir=$(dirname $(realpath $0))
 $scriptdir/setup.sh $1
 $scriptdir/copy_setup.sh $@
-$scriptdir/create_resource.sh $@
+$scriptdir/create_configurations.sh $@

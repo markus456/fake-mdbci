@@ -1,19 +1,7 @@
 #!/bin/bash
 
-if ! [ -d "$HOME/vms/" ]
-then
-    mkdir -p "$HOME/vms/" || exit 1
-fi
-
-cd "$HOME/vms/" || exit 1
-
-
-if command -v incus > /dev/null
-then
-    lxc_cmd=incus
-else
-    lxc_cmd=lxc
-fi
+scriptdir=$(dirname $(realpath $0))
+. $scriptdir/utils.sh
 
 while [ -n "$1" ]
 do

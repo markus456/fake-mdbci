@@ -6,12 +6,8 @@ then
     exit 1
 fi
 
-if command -v incus > /dev/null
-then
-    lxc_cmd=incus
-else
-    lxc_cmd=lxc
-fi
+scriptdir=$(dirname $(realpath $0))
+. $scriptdir/utils.sh
 
 # Build MaxScale, assumes that the source is at ~/MaxScale
 wait_for_network $1
