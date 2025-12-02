@@ -9,6 +9,6 @@ then
 fi
 
 scriptdir=$(dirname $(realpath $0))
-$scriptdir/setup.sh $1
-$scriptdir/copy_setup.sh $@
-$scriptdir/create_configurations.sh $@
+$scriptdir/setup.sh $1 || exit 1
+$scriptdir/copy_setup.sh $@ || exit 1
+$scriptdir/create_configurations.sh $@ || exit 1
