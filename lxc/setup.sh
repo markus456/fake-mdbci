@@ -61,7 +61,7 @@ sudo dnf -y install MariaDB-server
 # reasonable but large enough that things don't grind to a halt.
 echo '[mariadb]' > /etc/my.cnf.d/innodb.cnf
 echo 'innodb_buffer_pool_size=20971520' >> /etc/my.cnf.d/innodb.cnf
-chmod a+rw /etc/my.cnf.d/innodb.cnf
+chown mysql:mysql /etc/my.cnf.d/innodb.cnf
 EOF
 
 for name in node-00{1..3} galera-00{0..3}
