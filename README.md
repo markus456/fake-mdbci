@@ -72,30 +72,52 @@ virtual machines and are a bit faster to start up from scratch. These can also
 be used to run tests in parallel if CTest is configured with a resource spec
 file.
 
-## Testing with Incus
+The `lxc/` directory contains scripts that set up a LXC based testing setup
+using either LXD or Incus.
 
-The `incus/` directory contains scripts that set up a LXC based testing setup using Incus
+## Initializing LXD
 
-### Simple Usage
+Follow the instructions for initializing LXD or Incus. The interactive
+configuration mode with `sudo lxd init` is a good way to configure the system as
+it allows the selection of a `btrfs` storage pool which is a lot faster than the
+`dir` storage pool that the `ldx init --minimal` would select. For Ubuntu, LXD
+is available via Snap packages. Fedora has Incus in its repositories which is
+very similar to LXD with minor differences.
 
-- Run `./lxc/setup.sh develop`. This creates the test environment named `develop`.
+## Simple Usage
 
-- Export the config name with `export mdbci_config_name=develop`
+- Run `./lxc/setup_for_parallel.sh develop`. This creates the default test
+  environment named `develop` for the system tests.
 
 - Build tests
 
 - Run a test
 
-### Usage for Parallel Testing
+## Usage for Parallel Testing
 
-- Run `./lxc/setup.sh vm1` to bring up the first test environment named `vm1`.
-
-- Run `./lxc/copy_setup.sh vm1 vm2 vm3 vm4` to copy `vm1` into three other setups.
-
-- Run `./lxc/create_resource.sh vm1 vm2 vm3 vm4` to create the CTest resource spec file.
+- Run `./lxc/setup_for_parallel.sh vm1 vm2 vm3 vm4` to bring up four test environments.
 
 - Build tests
 
-- Run tests with `ctest -j 0 --resource-spec-file ~/vms/resource-spec.json --output-on-failure`
+- Run tests with `ctest -j 4 --resource-spec-file ~/vms/resource-spec.json --output-on-failure`
 
-The parallel testing may consume large amounts of memory due to MariaDB using up a bunch of memory on the system.
+The parallel testing may consume large amounts of memory due to MariaDB using up
+a bunch of memory on the system. If your system has enough memory and CPU
+capacity for tests to not time out, use more test environments.
+
+## Useful LXD commands
+
+```
+# Stops a container
+lxc stop vm1-maxscale-000
+
+# Starts a stopped container
+lxc start vm1-maxscale-000
+
+# Copies a container. Copied containers must be started manually.
+lxc copy vm1-maxscale-000 vm1-maxscale-copy
+lxc start vm1-maxscale-copy
+
+# Deletes a container. The --force is only needed if the container is running.
+lxc delete --force vm1-maxscale-000
+```
