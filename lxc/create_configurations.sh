@@ -27,15 +27,12 @@ Host $confname
   StrictHostKeyChecking no
   PasswordAuthentication no
   IdentityFile $PWD/ssh_key
-  IdentitiesOnly yes
-  LogLevel FATAL
 
 EOF
     done
 
     echo "GALERA_BACKEND,MAXSCALE,REPL_BACKEND,SECOND_MAXSCALE" > ${setup}_configured_labels
 done
-
 
 function list-envs() {
     for id in $@

@@ -20,5 +20,3 @@ do
         $lxc_cmd start $dst-$name
     done
 done
-
-$scriptdir/create_configurations.sh "$@"

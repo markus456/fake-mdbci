@@ -69,5 +69,3 @@ do
     $lxc_cmd copy ${setup}-node-000 ${setup}-$name || exit 1
     $lxc_cmd start ${setup}-$name || exit 1
 done
-
-$scriptdir/create_configurations.sh $setup
