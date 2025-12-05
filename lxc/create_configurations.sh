@@ -8,6 +8,13 @@ do
 
     for name in maxscale-00{0,1} node-00{0..3} galera-00{0..3}
     do
+        num_lines=$($lxc_cmd ls -f csv ${setup}-${name}|wc -l)
+        if [ $num_lines -eq 0 ]
+        then
+           echo "${setup}-${name} doesn't exist, skipping"
+           continue
+        fi
+
         wait_for_network ${setup}-${name}
         line=$($lxc_cmd ls -f csv ${setup}-${name})
         ip=$(echo $line|cut -f 3 -d ,|sed 's/ .*//')
@@ -35,9 +42,24 @@ EOF
 done
 
 function list-envs() {
-    for id in $@
+    for id in "$@"
     do
-        echo "{\"id\":\"$id\"}"
+        num_lines=$($lxc_cmd ls -f csv ${id}-maxscale-001|wc -l)
+        if [ $num_lines -eq 0 ]
+        then
+           echo "{\"id\":\"$id\"}"
+        fi
+    done
+}
+
+function list-big-envs() {
+    for id in "$@"
+    do
+        num_lines=$($lxc_cmd ls -f csv ${id}-maxscale-001|wc -l)
+        if [ $num_lines -ne 0 ]
+        then
+            echo "{\"id\":\"$id\"}"
+        fi
     done
 }
 
@@ -51,8 +73,13 @@ cat <<EOF|jq . > resource-spec.json
     {
       "envs": [
         $(list-envs "$@"|paste -s -d,)
+      ],
+      "big_envs": [
+        $(list-big-envs "$@"|paste -s -d,)
       ]
     }
   ]
 }
 EOF
+
+echo "Created configurations for: $*"

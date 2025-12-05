@@ -86,7 +86,7 @@ very similar to LXD with minor differences.
 
 ## Simple Usage
 
-- Run `./lxc/setup_for_parallel.sh develop`. This creates the default test
+- Run `./lxc/setup_for_simple.sh`. This creates the default test
   environment named `develop` for the system tests.
 
 - Build tests
