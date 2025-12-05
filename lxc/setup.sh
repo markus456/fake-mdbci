@@ -24,12 +24,16 @@ wait_for_network ${setup}-maxscale-000
 # Setup the containers for testing. The tests kind of assume a vagrant user.
 
 $lxc_cmd exec ${setup}-maxscale-000 bash <<EOF
-dnf -y install openssh-server iptables rsync lsof net-tools
+dnf -y install openssh-server iptables rsync lsof net-tools bind-utils
 systemctl enable sshd
 systemctl start sshd
 mkdir /root/.ssh/
 echo $(cat ssh_key.pub) > /root/.ssh/authorized_keys
 chmod 0600 /root/.ssh/authorized_keys
+
+# Disable selinux
+setenforce 0
+echo 'SELINUX=permissive' > /etc/selinux/config
 
 useradd -m vagrant
 usermod -a -G wheel vagrant
@@ -55,13 +59,6 @@ $lxc_cmd start ${setup}-maxscale-001 || exit 1
 $lxc_cmd exec ${setup}-node-000 bash <<EOF
 curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | sudo bash -s -- --mariadb-server-version=10.11
 sudo dnf -y install MariaDB-server
-
-# Configure a smaller buffer pool, we don't need a big one for the tests.
-# The 20MiB buffer pool should be small enough that the memory usage stays
-# reasonable but large enough that things don't grind to a halt.
-echo '[mariadb]' > /etc/my.cnf.d/innodb.cnf
-echo 'innodb_buffer_pool_size=20971520' >> /etc/my.cnf.d/innodb.cnf
-chown mysql:mysql /etc/my.cnf.d/innodb.cnf
 EOF
 
 for name in node-00{1..3} galera-00{0..3}

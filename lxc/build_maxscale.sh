@@ -12,7 +12,7 @@ scriptdir=$(dirname $(realpath $0))
 # Build MaxScale, assumes that the source is at ~/MaxScale
 wait_for_network $1
 ip=$($lxc_cmd ls -f csv -c 4 $1|sed 's/ .*//')
-rsync -e "ssh -o StrictHostKeyChecking=no -i $HOME/vms/ssh_key" -az --delete $HOME/MaxScale/ root@$ip:/MaxScale/
+rsync -e "ssh -o StrictHostKeyChecking=no -i $HOME/vms/ssh_key" -az $HOME/MaxScale/ root@$ip:/MaxScale/
 $lxc_cmd exec $1 bash <<EOF
 if ! [ -f /deps-installed.txt ]
 then
@@ -31,7 +31,7 @@ then
     source /opt/rh/gcc-toolset-11/enable
 
     git config --global --add safe.directory /MaxScale
-    cmake /MaxScale/ -DPACKAGE=Y -DCMAKE_BUILD_TYPE=Debug -DWITH_ASAN=Y -DWITH_UBSAN=Y
+    cmake /MaxScale/ -DPACKAGE=Y -DCMAKE_BUILD_TYPE=Debug -DWITH_ASAN=Y -DWITH_UBSAN=Y -DBUILD_TESTS=N
     echo "yes" > /maxscale-configured.txt
 fi
 
